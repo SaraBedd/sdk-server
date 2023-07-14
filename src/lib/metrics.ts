@@ -1,3 +1,5 @@
+import { TextAnalyticsClient, AzureKeyCredential } from "@azure/ai-text-analytics";
+
 export class Metrics {
   private wordFrequency: Record<string, number>;
   private interviewStartTime: Date;
@@ -109,16 +111,26 @@ export class Metrics {
     return responseWordFrequency;
   }
 
+  private async trackQuantifiedMetric(response: string) {
+    const key = process.env.AZURE_LANGUAGE_QME_KEY;
+    const endpoint = "https://metricextraction.cognitiveservices.azure.com/";
+    const textAnalyticsClient = new TextAnalyticsClient(endpoint, new AzureKeyCredential(key));
+    const entityResults = await textAnalyticsClient.recognizeEntities([response]);
+    
+    return entityResults.length;
+  }
+
   /**
    * Ends answer timer, stores answer metrics into aggregate metrics, and returns answer metrics
    * @param response Candidates previous response
    * @returns Answer time in seconds and word frequency mapping for response
    */
-  public getAnswerMetrics(response: string) {
+  public async getAnswerMetrics(response: string) {
     const answerTimeSeconds = this.endAnswerTimer();
     const wordFrequency = this.trackWordsFromResponse(response);
+    const quantifiedMetric = await this.trackQuantifiedMetric(response);
 
-    return { answerTimeSeconds, wordFrequency };
+    return { answerTimeSeconds, wordFrequency, quantifiedMetric };
   }
 
   /**

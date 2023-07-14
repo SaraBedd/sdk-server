@@ -14,8 +14,8 @@ export const onFinishedSpeaking = async (
   }: { candidateResponse: string; metrics: Metrics; interviewer: Interviewer }
 ) => {
   try {
-    const { wordFrequency, answerTimeSeconds } =
-      metrics.getAnswerMetrics(candidateResponse);
+    const { wordFrequency, answerTimeSeconds, quantifiedMetric } =
+      await metrics.getAnswerMetrics(candidateResponse);
 
     const quietTimeSeconds = metrics.resetQuietTimeTimer();
 
@@ -27,6 +27,7 @@ export const onFinishedSpeaking = async (
         wordFrequency,
         answerTimeSeconds,
         quietTimeSeconds,
+        quantifiedMetric,
       },
     });
 

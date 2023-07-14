@@ -24,6 +24,7 @@ type ResponseMetricsEvent = {
     wordFrequency: Record<string, number>;
     answerTimeSeconds: number;
     quietTimeSeconds: number;
+    quantifiedMetric: number;
   };
 };
 
